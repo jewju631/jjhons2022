@@ -1,0 +1,100 @@
+---
+title: "deltagenes"
+output: html_document
+date: '2022-07-21'
+---
+
+```{r setup, include=FALSE}
+load('expMat-aggregated-20220720.RData')
+delta1 = as.matrix(expDat[,1] - expDat[,2])
+delta2 = as.matrix(expDat[,23] - expDat[,24])
+delta3 = as.matrix(expDat[,45] - expDat[,46])
+delta4 = as.matrix(expDat[,51] - expDat[,52])
+delta5 = as.matrix(expDat[,53] - expDat[,54])
+delta6 = as.matrix(expDat[,55] - expDat[,56])
+delta7 = as.matrix(expDat[,57] - expDat[,58])
+delta8 = as.matrix(expDat[,59] - expDat[,60])
+delta9 = as.matrix(expDat[,61] - expDat[,62])
+delta10 = as.matrix(expDat[,3] - expDat[,4])
+delta11 = as.matrix(expDat[,5] - expDat[,6])
+delta12 = as.matrix(expDat[,7] - expDat[,8])
+delta13 = as.matrix(expDat[,9] - expDat[,10])
+delta14 = as.matrix(expDat[,11] - expDat[,12])
+delta15 = as.matrix(expDat[,13] - expDat[,14])
+delta16 = as.matrix(expDat[,15] - expDat[,16])
+delta17 = as.matrix(expDat[,17] - expDat[,18])
+delta18 = as.matrix(expDat[,19] - expDat[,20])
+delta19 = as.matrix(expDat[,21] - expDat[,22])
+delta20 = as.matrix(expDat[,25] - expDat[,26])
+delta21 = as.matrix(expDat[,27] - expDat[,28])
+delta22 = as.matrix(expDat[,29] - expDat[,30])
+delta23 = as.matrix(expDat[,31] - expDat[,32])
+delta24 = as.matrix(expDat[,33] - expDat[,34])
+delta25 = as.matrix(expDat[,35] - expDat[,36])
+delta26 = as.matrix(expDat[,37] - expDat[,38])
+delta27 = as.matrix(expDat[,39] - expDat[,40])
+delta28 = as.matrix(expDat[,41] - expDat[,42])
+delta29 = as.matrix(expDat[,43] - expDat[,44])
+delta30 = as.matrix(expDat[,47] - expDat[,48])
+delta31 = as.matrix(expDat[,49] - expDat[,50])
+
+class(delta1)
+testdelta = cbind(delta1, delta18, delta22, delta30)
+colnames(testdelta) = c("d1", "d18", "d22", "d30")
+
+deltag = cbind(delta1, delta2, delta3, delta4, delta5, delta6, delta7, delta8, delta9, delta10, delta11, delta12, delta13, delta14, delta15, delta16, delta17, delta18, delta19, delta20, delta21, delta22, delta23, delta24, delta25, delta26, delta27, delta28, delta29, delta30, delta31)
+
+colnames(deltag) = c("T_BIOKEY1delta", "T_BIOKEY2delta", "E_BIOKEY3delta", "E_BIOKEY4delta", "E_BIOKEY5delta", "E_BIOKEY6delta", "E_BIOKEY7delta", "T_BIOKEY8delta", "T_BIOKEY9delta", "T_BIOKEY10delta", "T_BIOKEY11delta", "E_BIOKEY12delta", "H_BIOKEY13delta", "T_BIOKEY14delta", "T_BIOKEY15delta", "T_BIOKEY16delta", "E_BIOKEY17delta", "E_BIOKEY18delta", "T_BIOKEY19delta", "E_BIOKEY20delta", "E_BIOKEY21delta", "E_BIOKEY22delta", "H_BIOKEY23delta", "E_BIOKEY24delta", "T_BIOKEY25delta", "T_BIOKEY26delta", "E_BIOKEY27delta", "H_BIOKEY28delta", "E_BIOKEY29delta", "E_BIOKEY30delta", "T_BIOKEY31delta")
+
+```
+
+```{r sd, cache=TRUE, cache.lazy=FALSE}
+deltaSD = apply(deltag, 1, sd)
+View(as.matrix(deltaSD))
+
+testorder = order(deltaSD, decreasing = T)
+testorder
+?order
+
+keep2000 = order(deltaSD, decreasing=TRUE)[1:2000]
+head(keep2000)
+keep2000
+View(as.matrix(keep2000))
+delta2000 = deltag[keep2000,]
+head(delta2000)
+```
+
+```{r clustering, cache=TRUE, cache.lazy=FALSE}
+hc = hclust(dist(t(delta2000)))
+plot(hc, hang = -1)
+
+ct70 = cutree(hclust(as.dist(1-cor(t(delta2000)))), 2)
+table(ct70)
+
+View(ct70)
+
+library(gplots)
+dim(delta2000)
+
+table(brcaDat1$patient_id, brcaDat1$BC_type)
+drc = colSums(delta2000) 
+drcg = 1 + (drc > quantile(drc, 0.25)) + (drc > quantile(drc, 0.5)) + (drc> quantile(drc, 0.75))
+dim(drcg)
+boxplot(drc ~ drcg)
+drcg_cols = c("black", "red", "blue", "green")[drcg]
+dim(drcg_cols)
+table(drcg, drcg_cols)
+drcg_cols
+View(as.matrix(drcg_cols))
+drc
+dim(delta2000)
+heatmap.2(delta2000, trace='none', col='bluered', Rowv = F, ColSideColors = drcg_cols)
+
+boxplot(delta2000 ~ col(delta2000), col=rcg_cols)
+plot(density(delta2000[,1]), col=rcg_cols[1])
+for(i in 2:ncol(delta2000)) lines(density(delta2000[,i]), col=rcg_cols[i])
+
+drcg_cols
+```
+
+

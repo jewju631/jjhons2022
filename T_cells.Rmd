@@ -1,0 +1,149 @@
+---
+title: "Making T Cells"
+output: html_document
+date: '2022-08-17'
+---
+
+
+# Aggregating Counts
+```{r Aggregating Counts, cache=TRUE, cache.lazy=FALSE, fig.width=12}
+
+brcaDattcell = subset(brcaDat1, subset = cellType == "T_cell")
+
+brcaDattcell@meta.data$patient_trt = paste0(brcaDattcell@meta.data$patient_id, "_", brcaDattcell@meta.data$timepoint) 
+aggrCountstcell = AggregateExpression(brcaDattcell, set = brcaDattcell@meta.data$Cell, group.by = "patient_trt")
+counts = aggrCountstcell[[1]]
+
+colSums(counts) %>% sort() %>% barplot(., las=3)
+abline(h=3e6, col='blue', lty=3)
+abline(h=1e6, col='blue', lty=3)
+(colSums(counts) < 3000000) %>%  sum()
+
+colnames(counts)[colSums(counts) < 1e6] %>%  t() %>%  t()
+
+table(brcaDattcell@meta.data$cellType)
+table(brcaDattcell@meta.data$patient_id, brcaDattcell@meta.data$cellType)
+prop.table(table(brcaDattcell@meta.data$patient_id, brcaDattcell@meta.data$cellType),1) %>% round(.,3)
+
+hist(log10(brcaDattcell@meta.data$nCount_RNA), 100)
+
+hist(brcaDattcell@meta.data$nCount_RNA/brcaDattcell@meta.data$nFeature_RNA, 100)
+
+boxplot((brcaDattcell@meta.data$nCount_RNA/brcaDattcell@meta.data$nFeature_RNA)~brcaDattcell@meta.data$patient_id)
+```
+
+I should consider cutting off the bottom 6 tumours, because they have a low read information. These tumours are: BIOKEY_20_Pre, BIOKEY_23_Pre, BIOKEY_25_Pre, BIOKEY_29_On, BIOKEY_5_On, and BIOKEY_7_Pre. I assume that I should also remove their respective counterparts (pre- and on- data relating to that same tumour).
+
+
+
+
+# Voom normalisation
+```{r voom normalisation, cache=TRUE, cache.lazy=FALSE, message=FALSE}
+library(edgeR)
+dgetcell = DGEList( counts = counts)
+dgetcell = calcNormFactors(dgetcell)
+
+logcpmtcell = edgeR::cpm(dgetcell, log = TRUE, prior.counts = 3)
+designtcell = model.matrix(~rep(1, ncol(counts)) - 1)
+vtcell = voom(dgetcell, design = designtcell, plot = TRUE)
+
+expDattcell = vtcell$E
+expDattcell[1:5,1:5]
+
+expDattcell_t = expDattcell[,c(1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15, 16, 21, 22, 23, 24, 35, 36, 37, 38, 49, 50, 59, 60, 61, 62 )]
+
+expDattcell_e = expDattcell[,c(7, 8, 17, 18, 19, 20, 25, 26, 27, 28, 29, 30, 33, 34, 39, 40, 43, 44, 45, 46, 47, 48, 51, 52, 53, 54, 55, 56)]
+
+expDattcell_h = expDattcell[,c(9, 10, 31, 32, 41, 42)]
+
+```
+
+
+```{r Delta genes tcell, cache=TRUE, cache.lazy=FALSE}
+delta1tcell = as.matrix(expDattcell[,1] - expDattcell[,2])
+delta2tcell = as.matrix(expDattcell[,23] - expDattcell[,24])
+delta3tcell = as.matrix(expDattcell[,45] - expDattcell[,46])
+delta4tcell = as.matrix(expDattcell[,51] - expDattcell[,52])
+delta5tcell = as.matrix(expDattcell[,53] - expDattcell[,54])
+delta6tcell = as.matrix(expDattcell[,55] - expDattcell[,56])
+delta7tcell = as.matrix(expDattcell[,57] - expDattcell[,58])
+delta8tcell = as.matrix(expDattcell[,59] - expDattcell[,60])
+delta9tcell = as.matrix(expDattcell[,61] - expDattcell[,62])
+delta10tcell = as.matrix(expDattcell[,3] - expDattcell[,4])
+delta11tcell = as.matrix(expDattcell[,5] - expDattcell[,6])
+delta12tcell = as.matrix(expDattcell[,7] - expDattcell[,8])
+delta13tcell = as.matrix(expDattcell[,9] - expDattcell[,10])
+delta14tcell = as.matrix(expDattcell[,11] - expDattcell[,12])
+delta15tcell = as.matrix(expDattcell[,13] - expDattcell[,14])
+delta16tcell = as.matrix(expDattcell[,15] - expDattcell[,16])
+delta17tcell = as.matrix(expDattcell[,17] - expDattcell[,18])
+delta18tcell = as.matrix(expDattcell[,19] - expDattcell[,20])
+delta19tcell = as.matrix(expDattcell[,21] - expDattcell[,22])
+delta20tcell = as.matrix(expDattcell[,25] - expDattcell[,26])
+delta21tcell = as.matrix(expDattcell[,27] - expDattcell[,28])
+delta22tcell = as.matrix(expDattcell[,29] - expDattcell[,30])
+delta23tcell = as.matrix(expDattcell[,31] - expDattcell[,32])
+delta24tcell = as.matrix(expDattcell[,33] - expDattcell[,34])
+delta25tcell = as.matrix(expDattcell[,35] - expDattcell[,36])
+delta26tcell = as.matrix(expDattcell[,37] - expDattcell[,38])
+delta27tcell = as.matrix(expDattcell[,39] - expDattcell[,40])
+delta28tcell = as.matrix(expDattcell[,41] - expDattcell[,42])
+delta29tcell = as.matrix(expDattcell[,43] - expDattcell[,44])
+delta30tcell = as.matrix(expDattcell[,47] - expDattcell[,48])
+delta31tcell = as.matrix(expDattcell[,49] - expDattcell[,50])
+
+deltagtcell = cbind(delta1tcell, delta10tcell, delta11tcell, delta12tcell, delta13tcell, delta14tcell, delta15tcell, delta16tcell, delta17tcell, delta18tcell, delta19tcell, delta2tcell, delta20tcell, delta2tcell, delta22tcell, delta23tcell, delta24tcell, delta25tcell, delta26tcell, delta27tcell, delta28tcell, delta28tcell, delta3tcell, delta30tcell, delta31tcell, delta4tcell, delta5tcell, delta6tcell, delta7tcell, delta8tcell, delta9tcell)
+
+deltagT = deltag[,c(1, 2, 8, 9, 10, 11, 14, 15, 16, 19, 25, 26, 31)]
+deltagE = deltag[,c(3, 4, 5, 6, 7, 12, 1, 18, 20, 21, 22, 24, 27, 29, 30)]
+deltagH = deltag[,c(13, 23, 28)]
+
+deltagE = as.matrix(rowMeans(deltagE))
+colnames(deltagE) = "Mean of all ER+"
+deltagT = as.matrix(rowMeans(deltagT))
+colnames(deltagT) = "Mean of all TNBC"
+deltagH = as.matrix(rowMeans(deltagH))
+colnames(deltagH) = "Mean of all HER2+"
+
+colnames(deltagtcell) = c("T_BIOKEY1delta", "T_BIOKEY10delta", "E_BIOKEY11delta", "E_BIOKEY12delta", "E_BIOKEY13delta", "E_BIOKEY614delta", "E_BIOKEY15delta", "T_BIOKEY16delta", "T_BIOKEY17delta", "T_BIOKEY18delta", "T_BIOKEY19delta", "E_BIOKEY2delta", "H_BIOKEY20delta", "T_BIOKEY21delta", "T_BIOKEY22delta", "T_BIOKEY23delta", "E_BIOKEY24delta", "E_BIOKEY25delta", "T_BIOKEY26delta", "E_BIOKEY27delta", "E_BIOKEY28delta", "E_BIOKEY29delta", "H_BIOKEY3delta", "E_BIOKEY30delta", "T_BIOKEY31delta", "T_BIOKEY4delta", "E_BIOKEY5delta", "H_BIOKEY6delta", "E_BIOKEY7delta", "E_BIOKEY8delta", "T_BIOKEY9delta")
+
+deltaSDtcell = apply(deltagtcell, 1, sd)
+
+deltaMeantcell = apply(deltagtcell, 1, mean)
+
+plot(deltaMeantcell, deltaSDtcell, pch='.')
+```
+
+```{r}
+View(expDattcell)
+expDattcellpre = expDattcell[,c(2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62)]
+expDattcellon = expDattcell[,c(1,3,7,9,11,13,15,17,19,21,23,25,27,29,31,33,35,37,39,41,43,45,47,49,51,53,55,57,59,61)]
+
+```
+
+```{r}
+
+sampleDatatcell = brcaDattcell@meta.data[,-c(1:4,9:15),] %>% unique()
+cbind(colnames(expDattcell), sampleDatatcell)
+
+sampleDataAlltcell = dplyr::arrange(sampleDatatcell, patient_id, desc(timepoint))
+cbind(colnames(expDattcell), sampleDataAlltcell)
+rownames(sampleDataAlltcell) = paste0(sampleDataAlltcell$patient_id, "_", sampleDataAlltcell$timepoint)
+
+sampleData3tcell = brcaDattcell@meta.data[,-c(1:4,6,9:15),] %>% unique()
+rownames(sampleData3tcell) = paste0(sampleData3tcell$patient_id, "_", "Pre")
+sampleData3tcell
+cbind(colnames(expDatpre), sampleData3tcell)
+sampleDataPatienttcell = dplyr::arrange(sampleData3tcell, patient_id)
+cbind(colnames(expDatpre), sampleDataPatienttcell)
+sampleDataPatienttcell
+
+cbind(colnames(delta2000_scale), sampleDataPatient)
+
+
+keep2000tcell = order(deltaSDtcell, decreasing=TRUE)[1:2000]
+head(keep2000tcell)
+delta2000tcell = deltagtcell[keep2000tcell,]
+
+save( list = c("delta2000tcell", "brcaDattcell", "expDattcell", "sampleDataPatienttcell", "sampleData3tcell", "expDattcellpre", "expDattcellon"), file = "Tcells.R")
+```

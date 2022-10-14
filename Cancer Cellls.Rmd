@@ -1,0 +1,145 @@
+---
+title: "Making Cancer Cells"
+output: html_document
+date: '2022-08-17'
+---
+
+
+# Aggregating Counts
+```{r Aggregating Counts, cache=TRUE, cache.lazy=FALSE, fig.width=12}
+
+brcaDatcancer = subset(brcaDat1, subset = cellType == "Cancer_cell")
+table(brcaDatcancer@meta.data$patient_trt)
+
+brcaDatcancer@meta.data$patient_trt = paste0(brcaDatcancer@meta.data$patient_id, "_", brcaDatcancer@meta.data$timepoint) 
+aggrCountscan = AggregateExpression(brcaDatcancer, set = brcaDatcancer@meta.data$Cell, group.by = "patient_trt")
+countscan = aggrCountscan[[1]]
+
+colSums(countscan) %>% sort() %>% barplot(., las=3)
+abline(h=3e6, col='blue', lty=3)
+abline(h=1e6, col='blue', lty=3)
+(colSums(countscan) < 3000000) %>%  sum()
+
+colnames(countscan)[colSums(countscan) < 1e6] %>%  t() %>%  t()
+
+table(brcaDatcancer@meta.data$cellType)
+table(brcaDatcancer@meta.data$patient_id, brcaDatcancer@meta.data$cellType)
+prop.table(table(brcaDatcancer@meta.data$patient_id, brcaDatcancer@meta.data$cellType),1) %>% round(.,3)
+
+hist(log10(brcaDatcancer@meta.data$nCount_RNA), 100)
+
+hist(brcaDatcancer@meta.data$nCount_RNA/brcaDatcancer@meta.data$nFeature_RNA, 100)
+
+boxplot((brcaDatcancer@meta.data$nCount_RNA/brcaDatcancer@meta.data$nFeature_RNA)~brcaDatcancer@meta.data$patient_id)
+```
+
+I should consider cutting off the bottom 6 tumours, because they have a low read information. These tumours are: BIOKEY_20_Pre, BIOKEY_23_Pre, BIOKEY_25_Pre, BIOKEY_29_On, BIOKEY_5_On, and BIOKEY_7_Pre. I assume that I should also remove their respective counterparts (pre- and on- data relating to that same tumour).
+
+
+
+
+# Voom normalisation
+```{r voom normalisation, cache=TRUE, cache.lazy=FALSE, message=FALSE}
+library(edgeR)
+dgecan = DGEList( counts = countscan)
+dgecan = calcNormFactors(dgecan)
+
+logcpmcan = edgeR::cpm(dgecan, log = TRUE, prior.counts = 3)
+designcan = model.matrix(~rep(1, ncol(countscan)) - 1)
+vcan = voom(dgecan, design = designcan, plot = TRUE)
+
+expDatcan = vcan$E
+expDatcan[1:5,1:5]
+dim(expDatcan)
+
+expDatcan_t = expDatcan[,c(1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15, 16, 21, 22, 23, 24, 35, 36, 37, 38, 49, 50, 59, 60, 61, 62 )]
+
+expDatcan_e = expDatcan[,c(7, 8, 17, 18, 19, 20, 25, 26, 27, 28, 29, 30, 33, 34, 39, 40, 43, 44, 45, 46, 47, 48, 51, 52, 53, 54, 55, 56)]
+
+expDatcan_h = expDatcan[,c(9, 10, 31, 32, 41, 42)]
+
+```
+
+
+```{r Delta genes cancer, cache=TRUE, cache.lazy=FALSE}
+delta1can = as.matrix(expDatcan[,1] - expDatcan[,2])
+delta2can = as.matrix(expDatcan[,23] - expDatcan[,24])
+delta3can = as.matrix(expDatcan[,44] - expDatcan[,45])
+delta4can = as.matrix(expDatcan[,50] - expDatcan[,51])
+delta5can = as.matrix(expDatcan[,52] - expDatcan[,53])
+delta6can = as.matrix(expDatcan[,54] - expDatcan[,55])
+delta7can = as.matrix(expDatcan[,56] - expDatcan[,57])
+delta8can = as.matrix(expDatcan[,58] - expDatcan[,59])
+delta9can = as.matrix(expDatcan[,60] - expDatcan[,61])
+delta10can = as.matrix(expDatcan[,2] - expDatcan[,3])
+delta11can = as.matrix(expDatcan[,4] - expDatcan[,5])
+delta12can = as.matrix(expDatcan[,6] - expDatcan[,7])
+delta13can = as.matrix(expDatcan[,8] - expDatcan[,9])
+delta14can = as.matrix(expDatcan[,10] - expDatcan[,11])
+delta15can = as.matrix(expDatcan[,12] - expDatcan[,13])
+delta16can = as.matrix(expDatcan[,14] - expDatcan[,15])
+delta17can = as.matrix(expDatcan[,16] - expDatcan[,17])
+delta18can = as.matrix(expDatcan[,18] - expDatcan[,19])
+delta19can = as.matrix(expDatcan[,20] - expDatcan[,21])
+delta20can = as.matrix(expDatcan[,25] - expDatcan[,26])
+delta21can = as.matrix(expDatcan[,27] - expDatcan[,28])
+delta22can = as.matrix(expDatcan[,29] - expDatcan[,30])
+delta23can = as.matrix(expDatcan[,31] - expDatcan[,32])
+delta24can = as.matrix(expDatcan[,33] - expDatcan[,34])
+delta25can = as.matrix(expDatcan[,35] - expDatcan[,36])
+delta26can = as.matrix(expDatcan[,37] - expDatcan[,38])
+delta27can = as.matrix(expDatcan[,39] - expDatcan[,40])
+delta28can = as.matrix(expDatcan[,41] - expDatcan[,42])
+delta29can = as.matrix(expDatcan[,43])
+delta30can = as.matrix(expDatcan[,46] - expDatcan[,47])
+delta31can = as.matrix(expDatcan[,48] - expDatcan[,49])
+
+deltagcan = cbind(delta1can, delta10can, delta11can, delta12can, delta13can, delta14can, delta15can, delta16can, delta17can, delta18can, delta19can, delta2can, delta20can, delta2can, delta22can, delta23can, delta24can, delta25can, delta26can, delta27can, delta28can, delta28can, delta3can, delta30can, delta31can, delta4can, delta5can, delta6can, delta7can, delta8can, delta9can)
+
+deltagT = deltag[,c(1, 2, 8, 9, 10, 11, 14, 15, 16, 19, 25, 26, 31)]
+deltagE = deltag[,c(3, 4, 5, 6, 7, 12, 1, 18, 20, 21, 22, 24, 27, 29, 30)]
+deltagH = deltag[,c(13, 23, 28)]
+
+deltagE = as.matrix(rowMeans(deltagE))
+colnames(deltagE) = "Mean of all ER+"
+deltagT = as.matrix(rowMeans(deltagT))
+colnames(deltagT) = "Mean of all TNBC"
+deltagH = as.matrix(rowMeans(deltagH))
+colnames(deltagH) = "Mean of all HER2+"
+
+colnames(deltagcan) = c("T_BIOKEY1delta", "T_BIOKEY10delta", "E_BIOKEY11delta", "E_BIOKEY12delta", "E_BIOKEY13delta", "E_BIOKEY614delta", "E_BIOKEY15delta", "T_BIOKEY16delta", "T_BIOKEY17delta", "T_BIOKEY18delta", "T_BIOKEY19delta", "E_BIOKEY2delta", "H_BIOKEY20delta", "T_BIOKEY21delta", "T_BIOKEY22delta", "T_BIOKEY23delta", "E_BIOKEY24delta", "E_BIOKEY25delta", "T_BIOKEY26delta", "E_BIOKEY27delta", "E_BIOKEY28delta", "E_BIOKEY29delta", "H_BIOKEY3delta", "E_BIOKEY30delta", "T_BIOKEY31delta", "T_BIOKEY4delta", "E_BIOKEY5delta", "H_BIOKEY6delta", "E_BIOKEY7delta", "E_BIOKEY8delta", "T_BIOKEY9delta")
+
+deltaSDcan = apply(deltagcan, 1, sd)
+
+deltaMeancan = apply(deltagcan, 1, mean)
+
+plot(deltaMeancan, deltaSDcan, pch='.')
+```
+
+
+```{r}
+
+sampleDatacan = brcaDatcancer@meta.data[,-c(1:4,9:15),] %>% unique()
+cbind(colnames(expDatcan), sampleDatacan)
+
+sampleDataAllcan = dplyr::arrange(sampleDatacan, patient_id, desc(timepoint))
+cbind(colnames(expDatcan), sampleDataAllcan)
+rownames(sampleDataAllcan) = paste0(sampleDataAllcan$patient_id, "_", sampleDataAllcan$timepoint)
+
+sampleData3can = brcaDatcancer@meta.data[,-c(1:4,6,9:15),] %>% unique()
+rownames(sampleData3can) = paste0(sampleData3can$patient_id, "_", "Pre")
+sampleData3can
+cbind(colnames(expDatpre), sampleData3can)
+sampleDataPatientcan = dplyr::arrange(sampleData3can, patient_id)
+cbind(colnames(expDatpre), sampleDataPatientcan)
+
+sampleDataPatientcan
+cbind(colnames(delta2000_scale), sampleDataPatient)
+
+
+keep2000can = order(deltaSDcan, decreasing=TRUE)[1:2000]
+head(keep2000can)
+delta2000can = deltagcan[keep2000can,]
+
+save( list = c("delta2000can", "brcaDatcancer", "expDatcan", "sampleDataPatientcan", "deltagcan","sampleData3can"), file = "Cancercells.R")
+```

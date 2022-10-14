@@ -1,0 +1,385 @@
+---
+title: "PAM50"
+output: html_document
+date: '2022-07-19'
+---
+
+```{r setup, include=FALSE}
+
+load('expMat-aggregated-20220720.RData')
+
+library(genefu)
+
+load(url("https://github.com/mikblack/PATH302/raw/master/uppsalaCohort.RData"))
+
+data(scmod2.robust)
+data(pam50.robust)
+data(scmgene.robust)
+data(sig.ggi)
+data(scmod1.robust)
+data(sig.genius)
+data(nkis)
+
+```
+
+```{r PATH302 data}
+
+uppExp = exprs(upp)
+uppAnnot = featureData(upp)@data
+uppClin  = phenoData(upp)@data
+uppClinSmall = uppClin[,c("size", "age", "er", "grade", "pgr", 
+                          "node", "t.rfs", "e.rfs","treatment")]
+uppClinSmall$t.rfs = uppClinSmall$t.rfs / 365
+attach(uppClinSmall)
+
+PAM50Preds = molecular.subtyping(sbt.model = "pam50", data=t(uppExp),
+                                annot=uppAnnot, do.mapping=TRUE)
+```
+
+```{r my data}
+library(org.Hs.eg.db)
+
+
+
+head(t(expsym))
+expsymx = expsym
+
+
+
+PAM50Preds$subtype
+head(uppAnnot)
+expAnnot = matrix(rownames(expDat), ncol=1)
+colnames(expAnnot) = "Gene.Symbol"
+
+expAnn = AnnotationDbi::select(org.Hs.eg.db, keys = expAnnot, keytype = "SYMBOL", columns = "ENTREZID")
+mt = match(rownames(expDat), expAnn$SYMBOL)
+length(mt)
+head(mt)
+expAnnx = expAnn[mt,]
+dim(expAnnx)
+dim(expDat)
+head(expAnnx)
+expDat[1:5,1:5]
+colnames(expAnnx) = c("Gene.Symbol", "EntrezGene.ID")
+
+expDatScale = t(scale(t(expDat)))
+expDatScale[expDatScale < -3] = -3
+expDatScale[expDatScale >  3] =  3
+
+PAM50Preds = molecular.subtyping(sbt.model = "pam50", data= t(expDat),
+                                annot=expAnnx, do.mapping=FALSE)
+table(PAM50Preds$subtype)
+boxplot(expDat["ESR1",] ~ PAM50Preds$subtype, las=3)
+
+length(PAM50Preds$subtype)
+
+boxplot(brcaDat1er~PAM50Preds$subtype, las=3)
+
+
+expDat1 = as.matrix(expDat[,1])
+expDat2 = as.matrix(expDat[,2])
+expDat3 = as.matrix(expDat[,3])
+expDat4 = as.matrix(expDat[,4])
+expDat5 = as.matrix(expDat[,5])
+expDat6 = as.matrix(expDat[,6])
+expDat7 = as.matrix(expDat[,7])
+expDat8 = as.matrix(expDat[,8])
+expDat9 = as.matrix(expDat[,9])
+expDat10 = as.matrix(expDat[,10])
+expDat11 = as.matrix(expDat[,11])
+expDat12 = as.matrix(expDat[,12])
+expDat13 = as.matrix(expDat[,13])
+expDat14 = as.matrix(expDat[,14])
+expDat15 = as.matrix(expDat[,15])
+expDat16 = as.matrix(expDat[,16])
+expDat17 = as.matrix(expDat[,17])
+expDat18 = as.matrix(expDat[,18])
+expDat19 = as.matrix(expDat[,19])
+expDat20 = as.matrix(expDat[,20])
+expDat21 = as.matrix(expDat[,21])
+expDat22 = as.matrix(expDat[,22])
+expDat23 = as.matrix(expDat[,23])
+expDat24 = as.matrix(expDat[,24])
+expDat25 = as.matrix(expDat[,25])
+expDat26 = as.matrix(expDat[,26])
+expDat27 = as.matrix(expDat[,27])
+expDat28 = as.matrix(expDat[,28])
+expDat29 = as.matrix(expDat[,29])
+expDat30 = as.matrix(expDat[,30])
+expDat31 = as.matrix(expDat[,31])
+expDat32 = as.matrix(expDat[,32])
+expDat33 = as.matrix(expDat[,33])
+expDat34 = as.matrix(expDat[,34])
+expDat35 = as.matrix(expDat[,35])
+expDat36 = as.matrix(expDat[,36])
+expDat37 = as.matrix(expDat[,37])
+expDat38 = as.matrix(expDat[,38])
+expDat39 = as.matrix(expDat[,39])
+expDat40 = as.matrix(expDat[,40])
+expDat41 = as.matrix(expDat[,41])
+expDat42 = as.matrix(expDat[,42])
+expDat43 = as.matrix(expDat[,43])
+expDat44 = as.matrix(expDat[,44])
+expDat45 = as.matrix(expDat[,45])
+expDat46 = as.matrix(expDat[,46])
+expDat47 = as.matrix(expDat[,47])
+expDat48 = as.matrix(expDat[,48])
+expDat49 = as.matrix(expDat[,49])
+expDat50 = as.matrix(expDat[,50])
+expDat51 = as.matrix(expDat[,51])
+expDat52 = as.matrix(expDat[,52])
+expDat53 = as.matrix(expDat[,53])
+expDat54 = as.matrix(expDat[,54])
+expDat55 = as.matrix(expDat[,55])
+expDat56 = as.matrix(expDat[,56])
+expDat57 = as.matrix(expDat[,57])
+expDat58 = as.matrix(expDat[,58])
+expDat59 = as.matrix(expDat[,59])
+expDat60 = as.matrix(expDat[,60])
+expDat61 = as.matrix(expDat[,61])
+expDat62 = as.matrix(expDat[,62])
+
+colnames(expDat1) = "T_BIOKEY_1_On"
+colnames(expDat2) = "T_BIOKEY_1_Pre"
+colnames(expDat3) = "T_BIOKEY_10_On"
+colnames(expDat4) = "T_BIOKEY_10_Pre"
+colnames(expDat5) = "T_BIOKEY_11_On"
+colnames(expDat6) = "T_BIOKEY_11_Pre"
+colnames(expDat7) = "E_BIOKEY_12_On"
+colnames(expDat8) = "E_BIOKEY_12_Pre"
+colnames(expDat9) = "H_BIOKEY_13_On"
+colnames(expDat10) = "H_BIOKEY_13_Pre"
+colnames(expDat11) = "T_BIOKEY_14_On"
+colnames(expDat12) = "T_BIOKEY_14_Pre"
+colnames(expDat13) = "T_BIOKEY_15_On"
+colnames(expDat14) = "T_BIOKEY_15_Pre"
+colnames(expDat15) = "T_BIOKEY_16_On"
+colnames(expDat16) = "T_BIOKEY_16_Pre"
+colnames(expDat17) = "E_BIOKEY_17_On"
+colnames(expDat18) = "E_BIOKEY_17_Pre"
+colnames(expDat19) = "E_BIOKEY_18_On"
+colnames(expDat20) = "E_BIOKEY_18_Pre"
+colnames(expDat21) = "T_BIOKEY_19_On"
+colnames(expDat22) = "T_BIOKEY_19_Pre"
+colnames(expDat23) = "T_BIOKEY_2_On"
+colnames(expDat24) = "T_BIOKEY_2_Pre"
+colnames(expDat25) = "E_BIOKEY_20_On"
+colnames(expDat26) = "E_BIOKEY_20_Pre"
+colnames(expDat27) = "E_BIOKEY_21_On"
+colnames(expDat28) = "E_BIOKEY_21_Pre"
+colnames(expDat29) = "E_BIOKEY_22_On"
+colnames(expDat30) = "E_BIOKEY_22_Pre"
+colnames(expDat31) = "H_BIOKEY_23_On"
+colnames(expDat32) = "H_BIOKEY_23_Pre"
+colnames(expDat33) = "E_BIOKEY_24_On"
+colnames(expDat34) = "E_BIOKEY_24_Pre"
+colnames(expDat35) = "T_BIOKEY_25_On"
+colnames(expDat36) = "T_BIOKEY_25_Pre"
+colnames(expDat37) = "T_BIOKEY_26_On"
+colnames(expDat38) = "T_BIOKEY_26_Pre"
+colnames(expDat39) = "E_BIOKEY_27_On"
+colnames(expDat40) = "E_BIOKEY_27_Pre"
+colnames(expDat41) = "H_BIOKEY_28_On"
+colnames(expDat42) = "H_BIOKEY_28_Pre"
+colnames(expDat43) = "E_BIOKEY_29_On"
+colnames(expDat44) = "E_BIOKEY_29_Pre"
+colnames(expDat45) = "E_BIOKEY_3_On"
+colnames(expDat46) = "E_BIOKEY_3_Pre"
+colnames(expDat47) = "E_BIOKEY_30_On"
+colnames(expDat48) = "E_BIOKEY_30_Pre"
+colnames(expDat49) = "T_BIOKEY_31_On"
+colnames(expDat50) = "T_BIOKEY_31_Pre"
+colnames(expDat51) = "E_BIOKEY_4_On"
+colnames(expDat52) = "E_BIOKEY_4_Pre"
+colnames(expDat53) = "E_BIOKEY_5_On"
+colnames(expDat54) = "E_BIOKEY_5_Pre"
+colnames(expDat55) = "E_BIOKEY_6_On"
+colnames(expDat56) = "E_BIOKEY_6_Pre"
+colnames(expDat57) = "E_BIOKEY_7_On"
+colnames(expDat58) = "E_BIOKEY_7_Pre"
+colnames(expDat59) = "T_BIOKEY_8_On"
+colnames(expDat60) = "T_BIOKEY_8_Pre"
+colnames(expDat61) = "T_BIOKEY_9_On"
+colnames(expDat62) = "T_BIOKEY_9_Pre"
+
+
+length(brcaDat1@meta.data$patient_trt)
+expDaton = cbind(expDat1, expDat3, expDat5, expDat7, expDat9, expDat11, expDat13, expDat15, expDat17, expDat19, expDat21, expDat23, expDat25, expDat27, expDat29, expDat31, expDat33, expDat35, expDat37, expDat39, expDat41, expDat43, expDat45, expDat47, expDat49, expDat51, expDat53, expDat55, expDat57, expDat59, expDat61)
+
+
+View(expDaton)
+
+expDatpre = cbind(expDat2, expDat4, expDat6, expDat8, expDat10, expDat12, expDat14, expDat16, expDat18, expDat20, expDat22, expDat24, expDat26, expDat28, expDat30, expDat32, expDat34, expDat36, expDat38, expDat40, expDat42, expDat44, expDat46, expDat48, expDat50, expDat52, expDat54, expDat56, expDat58, expDat60, expDat62)
+View(expDatpre)
+
+View(expDatpre)
+head(expDat[,1:3])
+
+expDatpre = cbind(expDat1, expDat3, expDat5)
+head(expDatpre)
+expDat1 = expDat[,1]expDatpre = expDat["BIOKEY_1_PRE", "BIOKEY_3_PRE", "BIOKEY_5_PRE", "BIOKEY_7_PRE", "BIOKEY_9_PRE", "BIOKEY_11_PRE", "BIOKEY_13_PRE", "BIOKEY_15_PRE", "BIOKEY_17_PRE", "BIOKEY_19_PRE", "BIOKEY_21_PRE", "BIOKEY_23_PRE", "BIOKEY_25_PRE", "BIOKEY_27_PRE", "BIOKEY_29_PRE", "BIOKEY_31_PRE", "BIOKEY_35_PRE", "BIOKEY_37_PRE", "BIOKEY_39_PRE", "BIOKEY_41_PRE", "BIOKEY_43_PRE", "BIOKEY_45_PRE", "BIOKEY_47_PRE", "BIOKEY_49_PRE", "BIOKEY_51_PRE", "BIOKEY_53_PRE", "BIOKEY_55_PRE", "BIOKEY_57_PRE", "BIOKEY_59_PRE", "BIOKEY_61_PRE", ]
+head(expDatpre)
+
+table(brcaDat1@meta.data$patient_trt)
+
+class(expDat)
+
+save(list=c('expDaton', 'expDatpre'), file="expdatpreandon.RData")
+load('expMat-aggregated-20220720.RData')
+
+class(brcaDat1er)
+
+brcaDat1@meta.data
+
+brcaDat1@meta.data[[subtype]] = PAM50Preds$subtype
+
+delta$subtype = paste0(PAM50Preds$subtype)
+
+View(PAM50Preds$subtype)
+
+brcaDat1her2 = subset(brcaDat1, subset = (BC_type == "HER2+"))
+brcaDat1er = subset(brcaDat1, subset = (BC_type == "ER+"))
+brcaDat1tnbc = subset(brcaDat1, subset = (BC_type == "TNBC"))
+?subset
+
+tnbcNE <- subset(brcaDat1, subset = (expansion == "NE") & (BC_type == "TNBC"))
+dim(tnbcNE)
+
+class(pam50.robust)
+length(pam50.robust)
+names(pam50.robust)
+class(pam50.robust$centroids)
+dim(pam50.robust$centroids)
+head(pam50.robust$centroids)
+pam50Symbols = rownames(pam50.robust$centroids)
+match(pam50Symbols, rownames(expDat))
+
+
+
+table(PAM50Preds$subtype, icSubtypes$subtype)
+
+data(nkis)
+data.nkis[1:5,1:5]
+
+data("ssp2006.robust")
+
+expAnn %>% head(.,3)
+dim(expAnn)
+dim(expDat)
+
+
+View(expAnn)
+expentrez = expAnn$ENTREZID
+expentrez = na.omit(expentrez)
+class(expAnn)
+class(expentrez)
+expentrez = as.data.frame(expentrez)
+View(expentrez)
+colnames(expentrez) = "EntrezGene.ID"
+expentrez = t(expentrez)
+
+expsym = expAnn$SYMBOL
+class(expsym)
+expsym = as.data.frame(expsym)
+colnames(expsym) = "Gene.Symbol"
+expsym = t(expsym)
+View(expsym)
+
+?AnnotationDbi::select
+?molecular.subtyping
+
+class(expDat)
+View(expDat)
+```
+
+```{r I'm trying}
+data(scmod2.robust)
+data(pam50.robust)
+data(scmgene.robust)
+data(sig.ggi)
+data(scmod1.robust)
+data(sig.genius)
+
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+``{r Pam50, cache=TRUE, cache.lazy=FALSE}
+BiocManager::install("genefu")
+library(genefu)
+
+load(url("https://github.com/mikblack/PATH302/raw/master/uppsalaCohort.RData"))
+uppExp = exprs(upp)
+uppAnnot = featureData(upp)@data
+uppClin  = phenoData(upp)@data
+uppClinSmall = uppClin[,c("size", "age", "er", "grade", "pgr", 
+                          "node", "t.rfs", "e.rfs","treatment")]
+uppClinSmall$t.rfs = uppClinSmall$t.rfs / 365
+attach(uppClinSmall)
+
+PAM50Preds = molecular.subtyping(sbt.model = "pam50", data=t(uppExp),
+                                annot=uppAnnot, do.mapping=TRUE)
+
+PAM50Preds = molecular.subtyping(sbt.model = "pam50", data= expDat,
+                                annot=expentrez, do.mapping=TRUE)
+## DO RUN THIS CODE:
+table(PAM50Preds$subtype)
+PAM50Preds$subtype
+head(uppAnnot)
+expAnnot = matrix(rownames(expDat), ncol=1)
+colnames(expAnnot) = "Gene.Symbol"
+
+library(org.Hs.eg.db)
+
+expAnn = AnnotationDbi::select(org.Hs.eg.db, keys = expAnnot, keytype = "SYMBOL", columns = "ENTREZID")
+expAnn %>% head(.,3)
+
+View(expAnn)
+expentrez = expAnn$ENTREZID
+expentrez = na.omit(expentrez)
+class(expAnn)
+class(expentrez)
+expentrez = as.data.frame(expentrez)
+View(expentrez)
+colnames(expentrez) = "EntrezGene.ID"
+?AnnotationDbi::select
+?molecular.subtyping
+```
+
+```{r I'm trying}
+data(scmod2.robust)
+data(pam50.robust)
+data(scmgene.robust)
+data(sig.ggi)
+data(scmod1.robust)
+data(sig.genius)
+
+for(i in 1:length(expDat)) {
+dd <- get(data(list=expDat))
+ddemo <- phenoData(dd)@data
+}
+
+dannot <- featureData(as.data.frame(expDat))@data
+?featureData
+
+?molecular.subtyping
+
+intrinsic.cluster.predict(sbt.model = "pam50", data = expDat, annot = expDat, do.mapping=TRUE)
+intrinsic.cluster(data = expDat, annot = "pam50", intrinsicg = "pam50")
+```
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
